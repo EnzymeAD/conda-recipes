@@ -23,10 +23,10 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake
     - ninja
-    - python >=3
-    - libcxx {{ cxx_compiler_version }}  # [osx]
+    - python
+    - libcxx  # [osx]
   host:
-    - libcxx {{ cxx_compiler_version }}  # [osx]
+    - libcxx  # [osx]
     - zlib
     - libxml2                            # [win]
 
@@ -43,7 +43,7 @@ outputs:
         - {{ compiler('cxx') }}
         - cmake
         - ninja
-        - python >=3
+        - python
       host:
         - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
         - {{ pin_subpackage("llvm-tools", exact=True) }}
@@ -51,15 +51,9 @@ outputs:
       run:
         - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
         - {{ pin_subpackage("llvm-tools", exact=True) }}
-        - libcxx >={{ cxx_compiler_version }}                           # [osx]
+        - libcxx                                                        # [osx]
     test:
       commands:
-        - $PREFIX/bin/llvm-config --libs                                # [not win]
-        - test -f $PREFIX/include/llvm/Pass.h                           # [not win]
-        - test -f $PREFIX/lib/libLLVMCore.a                             # [not win]
-        - $PREFIX/libexec/llvm/not false                                # [not win]
-        - if not exist %LIBRARY_INC%\\llvm\\Pass.h exit 1               # [win]
-        - if not exist "%LIBRARY_PREFIX%"\\libexec\llvm\not.exe exit 1  # [win]
 
   # Contains the shared libraries. To make different LLVM libraries co-installable
   # soversion is appended to the package name.
@@ -75,15 +69,14 @@ outputs:
         - {{ compiler('cxx') }}
         - ninja                    # [not win]
         - cmake                    # [not win]
-        - python >=3               # [not win]
+        - python                   # [not win]
       host:
-        - libcxx >={{ cxx_compiler_version }}  # [osx]
+        - libcxx  # [osx]
         - zlib
       run:
-        - libcxx >={{ cxx_compiler_version }}  # [osx]
+        - libcxx  # [osx]
     test:
       commands:
-        - test -f $PREFIX/lib/libLLVM-{{ major_ver }}${SHLIB_EXT}     # [not win]
 
   # This is a meta package so that people can use the latest libllvm and also
   # for run_exports
@@ -117,7 +110,7 @@ outputs:
         - {{ compiler('cxx') }}
         - cmake
         - ninja
-        - python >=3
+        - python
       host:
         - {{ pin_subpackage("libllvm" + major_ver, exact=True) }}
         - libxml2   # [win]
@@ -142,15 +135,11 @@ outputs:
         - lit = lit.main:main
     requirements:
       host:
-        - python >=3
+        - python
         - pip
       run:
         - python
     test:
-      imports:
-        - lit
-      commands:
-        - lit -h
 
 about:
   home: http://llvm.org/

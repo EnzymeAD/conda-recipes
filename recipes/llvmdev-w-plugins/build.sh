@@ -35,7 +35,6 @@ cmake -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
       -DLLVM_INCLUDE_DOCS=OFF \
       -DLLVM_INCLUDE_EXAMPLES=OFF \
       -DLLVM_INCLUDE_GO_TESTS=OFF \
-      -DLLVM_INCLUDE_TESTS=ON \
       -DLLVM_INCLUDE_UTILS=ON \
       -DLLVM_INSTALL_UTILS=ON \
       -DLLVM_UTILS_INSTALL_DIR=libexec/llvm \
@@ -61,8 +60,4 @@ if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
     ln -s $(which $CC) $BUILD_PREFIX/bin/gcc
   fi
 
-  ninja -j${CPU_COUNT} check-llvm
-
-  cd ../llvm/test
-  ../../build/bin/llvm-lit -vv Transforms ExecutionEngine Analysis CodeGen/X86
 fi
