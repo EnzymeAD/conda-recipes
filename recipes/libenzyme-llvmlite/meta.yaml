@@ -1,0 +1,47 @@
+{% set name = "libenzyme-llvmlite" %}
+{% set version = "0.0.34" %}
+{% set build_number = 0 %}
+{% set llvm_major_version = "11.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/EnzymeAD/Enzyme/archive/v{{ version }}.tar.gz
+  sha256: b4268562105f491d96f9984c5e612360255197317064b5ca44a261ebed9f4d05
+
+build:
+  number: {{ build_number }}
+  string: llvm{{ llvm_major_version }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - cmake
+    - ninja
+  host:
+    - llvmdev-addons-enabled
+    - lit
+  run:
+    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.4") }}  # [osx and x86_64]
+  run_constrained:
+    - llvmdev-addons-enabled
+
+about:
+  home: https://enzyme.mit.edu/
+  license: Apache-2.0 WITH LLVM-exception
+  license_file: LICENSE
+  summary: 'High-performance automatic differentiation of LLVM'
+  description: |
+    The Enzyme project is a tool that takes arbitrary existing code as
+    LLVM IR and computes the derivative (and gradient) of that function.
+    This allows developers to use Enzyme to automatically create gradients
+    of their source code without much additional work.
+  doc_url: https://enzyme.mit.edu/
+  dev_url: https://github.com/EnzymeAD/Enzyme
+
+extra:
+  recipe-maintainers:
+    - ludgerpaehler
+
