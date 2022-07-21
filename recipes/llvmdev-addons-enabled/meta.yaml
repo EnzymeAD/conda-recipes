@@ -5,7 +5,7 @@
 {% set build_number = "5" %}
 
 package:
-  name: llvmdev
+  name: llvmdev-addons-enabled
   version: {{ version }}
 
 source:
