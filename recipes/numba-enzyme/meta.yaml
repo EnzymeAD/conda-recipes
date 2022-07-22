@@ -34,8 +34,8 @@ requirements:
     # OpenMP headers from llvm needed for OSX.
     - llvm-openmp              # [osx]
   host:
-    - python
-    - numpy
+    - python 3.9
+    - numpy 1.19
     - setuptools
     - importlib_metadata       # [py<39]
     # On channel https://anaconda.org/ludgerpaehler/
@@ -49,7 +49,7 @@ requirements:
   run:
     - python 3.9
     # NumPy 1.22.0, 1.22.1, 1.22.2 are all broken for ufuncs, see #7756
-    - numpy >=1.18, !=1.22.0, !=1.22.1, !=1.22.2
+    - numpy 1.19
     - setuptools
     - importlib_metadata       # [py<39]
     # On channel https://anaconda.org/numba/
@@ -71,25 +71,6 @@ requirements:
     - scipy >=1.0
     # CUDA Python 11.6 or later
     - cuda-python >=11.6
-
-test:
-  requires:
-    - jinja2
-    # Required to test optional Numba features
-    - cffi
-    # temporarily disable scipy testing on ARM, need to build out more packages
-    - scipy                    # [not (armv6l or armv7l)]
-    - ipython                  # [not (armv6l or armv7l or aarch64)]
-    - setuptools
-    - tbb  >=2021              # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
-    - llvm-openmp              # [osx]
-    # This is for driving gdb tests
-    - pexpect                  # [linux64]
-    # For testing ipython
-    - ipykernel
-    # Need these for AOT. Do not init msvc as it may not be present
-    - {{ compiler('c') }}      # [not (win or armv6l or armv7l or aarch64)]
-    - {{ compiler('cxx') }}    # [not (win or armv6l or armv7l or aarch64)]
 
 about:
   home: https://numba.pydata.org/

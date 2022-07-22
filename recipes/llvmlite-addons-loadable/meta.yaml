@@ -26,13 +26,15 @@ requirements:
     - cmake          # [win]
     - make           # [unix and not (armv6l or armv7l or aarch64)]
   host:
-    - python
+    - python 3.9
+    - numpy 1.19
     # On channel https://anaconda.org/ludgerpaehler/
     - llvmdev-addons-enabled 11.1.0
     # llvmdev is built with libz compression support
     - zlib           # [unix and not (armv6l or armv7l or aarch64)]
   run:
-    - python >=3.7,<3.10
+    - python 3.9
+    - numpy 1.19
     # osx has dynamically linked libstdc++
     - libcxx >=4.0.1 # [osx]
 
