@@ -2,7 +2,7 @@
 {% set build_number = 0 %}
 
 package:
-   name: numba
+   name: numba-enzyme
    version: {{ version }}
 
 source:
@@ -40,6 +40,7 @@ requirements:
     - importlib_metadata       # [py<39]
     # On channel https://anaconda.org/ludgerpaehler/
     - llvmlite-addons-enabled
+    - enzyme-llvmlite
     # TBB devel version is to match TBB libs.
     # 2020.3 is the last version with the "old" ABI
     # NOTE: 2021.1..2021.5 are API compatible for Numba's purposes.
@@ -52,8 +53,9 @@ requirements:
     - numpy 1.19
     - setuptools
     - importlib_metadata       # [py<39]
-    # On channel https://anaconda.org/numba/
+    # On channel https://anaconda.org/ludgerpaehler/
     - llvmlite-addons-enabled
+    - enzyme-llvmlite
   run_constrained:
     # If TBB is present it must be at least version 2021
     - tbb >=2021    # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
