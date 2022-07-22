@@ -1,56 +1,98 @@
-{% set name = "libenzyme" %}
 {% set version = "0.0.34" %}
 {% set build_number = 0 %}
 
-# Needed for the linter even though it's specified in conda_build_config.yaml
-{% set llvm_major_version = llvm_major_version or "12" %}
-
 package:
-  name: {{ name|lower }}
-  version: {{ version }}
+   name: numba
+   version: {{ version }}
 
 source:
-  url: https://github.com/EnzymeAD/Enzyme/archive/v{{ version }}.tar.gz
-  sha256: b4268562105f491d96f9984c5e612360255197317064b5ca44a261ebed9f4d05
+  url: https://github.com/numba/numba/archive/refs/tags/0.55.2.tar.gz
+  sha256: 1b44f7c193e838eb14a16ab8423df7b60a5ddad5b250e779fd5ab1c7c42e9355
 
 build:
   number: {{ build_number }}
-  string: llvm{{ llvm_major_version }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
-  # Loadable modules are not supported by LLVM on Windows
-  skip: True  # [win]
+  string: np{{ NPY_VER }}py{{ PY_VER }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
+  entry_points:
+    - pycc = numba.pycc:main
+    - numba = numba.misc.numba_entry:main
+  script_env:
+    - PY_VCRUNTIME_REDIST
+  missing_dso_whitelist: # [osx]
+    # optional dependency: required only when omp is chosen as the backend for
+    # the threading layer
+    - lib/libiomp5.dylib # [osx]
+  ignore_run_exports:
+    # tbb-devel triggers hard dependency on tbb, this is not the case.
+    - tbb     # [not (armv6l or armv7l or aarch64 or linux32)]
 
 requirements:
+  # build and run dependencies are duplicated to avoid setuptools issues
+  # when we also set install_requires in setup.py
   build:
-    - {{ compiler('cxx') }}
-    - cmake
-    - ninja
+    - {{ compiler('c') }}      # [not (armv6l or armv7l or aarch64)]
+    - {{ compiler('cxx') }}    # [not (armv6l or armv7l or aarch64)]
+    # OpenMP headers from llvm needed for OSX.
+    - llvm-openmp              # [osx]
   host:
-    - llvmdev-addons-enabled 11.1.0
-    - lit
+    - python
+    - numpy
+    - setuptools
+    - importlib_metadata       # [py<39]
+    # On channel https://anaconda.org/ludgerpaehler/
+    - llvmlite-addons-enabled
+    # TBB devel version is to match TBB libs.
+    # 2020.3 is the last version with the "old" ABI
+    # NOTE: 2021.1..2021.5 are API compatible for Numba's purposes.
+    # NOTE: ppc64le exclusion is temporary until packages are more generally
+    #       available.
+    - tbb-devel >=2021,<2021.6       # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
   run:
-    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.4") }}  # [osx and x86_64]
+    - python 3.9
+    # NumPy 1.22.0, 1.22.1, 1.22.2 are all broken for ufuncs, see #7756
+    - numpy >=1.18, !=1.22.0, !=1.22.1, !=1.22.2
+    - setuptools
+    - importlib_metadata       # [py<39]
+    # On channel https://anaconda.org/numba/
+    - llvmlite-addons-enabled
   run_constrained:
-    - llvmdev-addons-enabled
+    # If TBB is present it must be at least version 2021
+    - tbb >=2021    # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
+    # avoid confusion from openblas bugs
+    - libopenblas !=0.3.6      # [x86_64]
+    # 0.3.17 buggy on M1 silicon
+    # https://github.com/xianyi/OpenBLAS/blob/v0.3.20/Changelog.txt#L118
+    # https://github.com/numba/numba/issues/7822#issuecomment-1063229855
+    # Exclude 0.3.20 too
+    # https://github.com/numba/numba/issues/8096
+    - libopenblas >=0.3.18, !=0.3.20     # [arm64]
+    # CUDA 10.2 or later is required for CUDA support
+    - cudatoolkit >=10.2
+    # scipy 1.0 or later
+    - scipy >=1.0
+    # CUDA Python 11.6 or later
+    - cuda-python >=11.6
 
 test:
-  commands:
-    - test -f $PREFIX/lib/LLVMEnzyme-{{ llvm_major_version }}${SHLIB_EXT}  # [unix]
+  requires:
+    - jinja2
+    # Required to test optional Numba features
+    - cffi
+    # temporarily disable scipy testing on ARM, need to build out more packages
+    - scipy                    # [not (armv6l or armv7l)]
+    - ipython                  # [not (armv6l or armv7l or aarch64)]
+    - setuptools
+    - tbb  >=2021              # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
+    - llvm-openmp              # [osx]
+    # This is for driving gdb tests
+    - pexpect                  # [linux64]
+    # For testing ipython
+    - ipykernel
+    # Need these for AOT. Do not init msvc as it may not be present
+    - {{ compiler('c') }}      # [not (win or armv6l or armv7l or aarch64)]
+    - {{ compiler('cxx') }}    # [not (win or armv6l or armv7l or aarch64)]
 
 about:
-  home: https://enzyme.mit.edu/
-  license: Apache-2.0 WITH LLVM-exception
+  home: https://numba.pydata.org/
+  license: BSD
   license_file: LICENSE
-  summary: 'High-performance automatic differentiation of LLVM'
-  description: |
-    The Enzyme project is a tool that takes arbitrary existing code as
-    LLVM IR and computes the derivative (and gradient) of that function.
-    This allows developers to use Enzyme to automatically create gradients
-    of their source code without much additional work.
-  doc_url: https://enzyme.mit.edu/
-  dev_url: https://github.com/EnzymeAD/Enzyme
-
-extra:
-  recipe-maintainers:
-    - ludgerpaehler
-    - wsmoses
-
+  summary: a just-in-time Python function compiler based on LLVM

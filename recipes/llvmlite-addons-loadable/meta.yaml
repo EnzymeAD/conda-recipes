@@ -27,13 +27,12 @@ requirements:
     - make           # [unix and not (armv6l or armv7l or aarch64)]
   host:
     - python
-    # On channel https://anaconda.org/ludgerpaehler/ -> how do I only take from my channel
+    # On channel https://anaconda.org/ludgerpaehler/
     - llvmdev-addons-enabled 11.1.0
     # llvmdev is built with libz compression support
     - zlib           # [unix and not (armv6l or armv7l or aarch64)]
   run:
     - python >=3.7,<3.10
-    - vs2015_runtime # [win]
     # osx has dynamically linked libstdc++
     - libcxx >=4.0.1 # [osx]
 

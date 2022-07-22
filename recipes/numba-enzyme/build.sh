@@ -1,11 +1,16 @@
-export LLVM_DIR=$PREFIX/lib/cmake/llvm
-export LLVM_EXTERNAL_LIT=$PREFIX/bin/lit
+#!/bin/bash
 
-cd enzyme
-mkdir build
-cd build
+if [[ "$(uname -s)" == *"Linux"* ]] && [[ "$(uname -p)" == *"86"* ]]; then
+    EXTRA_BUILD_EXT_FLAGS="--werror --wall"
+else
+    EXTRA_BUILD_EXT_FLAGS=""
+fi
 
-cmake -GNinja .. -DLLVM_DIR=$LLVM_DIR -DLLVM_EXTERNAL_LIT=$LLVM_EXTERNAL_LIT -DCMAKE_INSTALL_PREFIX=$PREFIX
-ninja
+if [[ "$(uname -s)" == *"Linux"* ]] && [[ "$(uname -p)" == *"ppc64le"* ]]; then
+    # To workaround https://github.com/numba/numba/issues/7302 
+    # because of a python build problem that the -pthread could be stripped.
+    export CC="$CC -pthread"
+    export CXX="$CXX -pthread"
+fi
 
-ninja install
+MACOSX_DEPLOYMENT_TARGET=10.10 $PYTHON setup.py build_ext $EXTRA_BUILD_EXT_FLAGS build install --single-version-externally-managed --record=record.txt
