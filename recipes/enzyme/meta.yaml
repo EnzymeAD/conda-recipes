@@ -1,5 +1,5 @@
-{% set name = "libenzyme" %}
-{% set version = "0.0.34" %}
+{% set name = "enzyme" %}
+{% set version = "0.0.36" %}
 {% set build_number = 0 %}
 
 # Needed for the linter even though it's specified in conda_build_config.yaml
@@ -11,7 +11,7 @@ package:
 
 source:
   url: https://github.com/EnzymeAD/Enzyme/archive/v{{ version }}.tar.gz
-  sha256: b4268562105f491d96f9984c5e612360255197317064b5ca44a261ebed9f4d05
+  sha256: 35661f1a9e00fe9417b512882bcf38e8ff1779a8fff9edeac24138a48548f8f8
 
 build:
   number: {{ build_number }}
@@ -28,10 +28,12 @@ requirements:
     - {{ "libllvm" + llvm_major_version }}
     - llvmdev {{ llvm_major_version }}
     - llvm
+    - clang
     - clangdev
     - lit
   run:
-    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.4") }}  # [osx and x86_64]
+    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.5") }}  # [osx and x86_64]
+    - clang
     - {{ "libllvm" + llvm_major_version }}
   run_constrained:
     - llvmdev {{ llvm_major_version + ".*" }}
@@ -39,6 +41,8 @@ requirements:
 test:
   commands:
     - test -f $PREFIX/lib/LLVMEnzyme-{{ llvm_major_version }}${SHLIB_EXT}  # [unix]
+    - test -f $PREFIX/lib/ClangEnzyme-{{ llvm_major_version }}${SHLIB_EXT} # [unix]
+    - test -f $PREFIX/lib/LLDEnzyme-{{ llvm_major_version }}$SHLIB_EXT}    # [unix]
 
 about:
   home: https://enzyme.mit.edu/
