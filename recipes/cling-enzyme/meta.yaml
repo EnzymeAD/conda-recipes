@@ -4,6 +4,7 @@
 
 # Cling-determined version number of LLVM & Clang
 {% set clang_version = [9, 0, 1] %}
+{% set cling_version = "0.9" %}
 
 package:
   name: {{ name|lower }}
@@ -31,8 +32,8 @@ requirements:
 
 test:
   commands:
-    - test -f $PREFIX/lib/LLVMEnzyme-{{ llvm_major_version }}${SHLIB_EXT}  # [unix]
-    - test -f $PREFIX/lib/ClangEnzyme-{{ llvm_major_version }}${SHLIB_EXT} # [unix]
+    - test -f $PREFIX/lib/LLVMEnzyme-{{ clang_version[0] }}${SHLIB_EXT}  # [unix]
+    - test -f $PREFIX/lib/ClangEnzyme-{{ clang_version[0] }}${SHLIB_EXT} # [unix]
 
 about:
   home: https://enzyme.mit.edu/
