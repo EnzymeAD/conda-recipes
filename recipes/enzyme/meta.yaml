@@ -1,9 +1,9 @@
 {% set name = "enzyme" %}
-{% set version = "0.0.36" %}
-{% set build_number = 0 %}
+{% set version = "0.0.48" %}
+{% set sha256 = "f5af62448dd2a8a316e59342ff445003581bc154f06b9b4d7a5a2c7259cf5769" %}
 
 # Needed for the linter even though it's specified in conda_build_config.yaml
-{% set llvm_major_version = llvm_major_version or "12" %}
+{% set llvm_major_version = llvm_major_version %}
 
 package:
   name: {{ name|lower }}
@@ -11,11 +11,10 @@ package:
 
 source:
   url: https://github.com/EnzymeAD/Enzyme/archive/v{{ version }}.tar.gz
-  sha256: 35661f1a9e00fe9417b512882bcf38e8ff1779a8fff9edeac24138a48548f8f8
-
+  sha256: {{ sha 256 }}
+  
 build:
-  number: {{ build_number }}
-  string: llvm{{ llvm_major_version }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}
+  number: 0
   # Loadable modules are not supported by LLVM on Windows
   skip: True  # [win]
 
@@ -25,16 +24,11 @@ requirements:
     - cmake
     - ninja
   host:
-    - {{ "libllvm" + llvm_major_version }}
+    - zlib
     - llvmdev {{ llvm_major_version }}
-    - llvm
-    - clang
-    - clangdev
+    - clangdev {{ llvm_major_version }}
     - lit
-  run:
-    - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.5") }}  # [osx and x86_64]
-    - clang
-    - {{ "libllvm" + llvm_major_version }}
+    
   run_constrained:
     - llvmdev {{ llvm_major_version + ".*" }}
 
