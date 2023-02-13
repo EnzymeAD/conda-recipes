@@ -1,0 +1,52 @@
+{% set name = "llvmlite-w-plugins" %}
+{% set version = "0.40.0dev1" %} 
+{% set sha256 = "0f68e0a1445dadc66cc58cc0035e52323f10b3449a8137e7ba82bc8bb7c74ffe" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/ludgerpaehler/llvmlite-plugin-patch/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  number: 0
+  script_env:
+    - PY_VCRUNTIME_REDIST
+    - LLVMLITE_SHARED
+    - LLVMLITE_USE_CMAKE
+
+requirements:
+  build:
+    # We cannot do this on macOS as the llvm-config from the
+    # toolchain conflicts with the same from llvmdev, the
+    # build.sh deals with it!
+    - {{ compiler('c') }}    # [not (osx or armv6l or armv7l or win)]
+    - {{ compiler('cxx') }}  # [not (osx or armv6l or armv7l or win)]
+    - cmake          # [win]
+    - make           # [unix and not (armv6l or armv7l or aarch64)]
+  host:
+    - python 3.9
+    - numpy 1.19
+    # On channel https://anaconda.org/numba
+    - llvmdev 11.1.0 *5 # [(osx and arm64)]
+    - llvmdev 11.1.0 *4 # [not ((osx and arm64) or win)]
+    # llvmdev is built with libz compression support
+    - zlib           # [unix and not (armv6l or armv7l or aarch64)]
+  run:
+    - python >=3.8,<3.10
+    # osx has dynamically linked libstdc++
+    - libcxx >=4.0.1 # [osx]
+
+test:
+  imports:
+    - llvmlite
+    - llvmlite.binding
+  commands:
+    - python -m llvmlite.tests
+
+about:
+  home: https://github.com/numba/llvmlite
+  license: New BSD License
+  summary: A lightweight LLVM python binding for writing JIT compilers
