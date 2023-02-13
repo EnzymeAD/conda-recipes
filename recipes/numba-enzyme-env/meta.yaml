@@ -1,13 +1,15 @@
-{% set version = "0.0.34" %}
+{% set name = "numba-enzyme-env" %}
+{% set version = "0.56.4" %}
 {% set build_number = 0 %}
+{% set sha256 = "ab96b731fb9dee12b404b42b7c1fb82c119352648906a80526afa73658895b73" %}
 
 package:
-   name: numba-enzyme
+   name: {{ name|lower }}
    version: {{ version }}
 
 source:
-  url: https://github.com/numba/numba/archive/refs/tags/0.55.2.tar.gz
-  sha256: 1b44f7c193e838eb14a16ab8423df7b60a5ddad5b250e779fd5ab1c7c42e9355
+  url: https://github.com/numba/numba/archive/refs/tags/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
 
 build:
   number: {{ build_number }}
@@ -17,13 +19,6 @@ build:
     - numba = numba.misc.numba_entry:main
   script_env:
     - PY_VCRUNTIME_REDIST
-  missing_dso_whitelist: # [osx]
-    # optional dependency: required only when omp is chosen as the backend for
-    # the threading layer
-    - lib/libiomp5.dylib # [osx]
-  ignore_run_exports:
-    # tbb-devel triggers hard dependency on tbb, this is not the case.
-    - tbb     # [not (armv6l or armv7l or aarch64 or linux32)]
 
 requirements:
   # build and run dependencies are duplicated to avoid setuptools issues
@@ -31,22 +26,13 @@ requirements:
   build:
     - {{ compiler('c') }}      # [not (armv6l or armv7l or aarch64)]
     - {{ compiler('cxx') }}    # [not (armv6l or armv7l or aarch64)]
-    # OpenMP headers from llvm needed for OSX.
-    - llvm-openmp              # [osx]
   host:
     - python 3.9
     - numpy 1.19
     - setuptools
     - importlib_metadata       # [py<39]
     # On channel https://anaconda.org/ludgerpaehler/
-    - llvmlite-addons-enabled
-    - enzyme-llvmlite
-    # TBB devel version is to match TBB libs.
-    # 2020.3 is the last version with the "old" ABI
-    # NOTE: 2021.1..2021.5 are API compatible for Numba's purposes.
-    # NOTE: ppc64le exclusion is temporary until packages are more generally
-    #       available.
-    - tbb-devel >=2021,<2021.6       # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
+    - enzyme-llvmlite  # needs to go to the current enzyme-llvmlite
   run:
     - python 3.9
     # NumPy 1.22.0, 1.22.1, 1.22.2 are all broken for ufuncs, see #7756
@@ -54,11 +40,8 @@ requirements:
     - setuptools
     - importlib_metadata       # [py<39]
     # On channel https://anaconda.org/ludgerpaehler/
-    - llvmlite-addons-enabled
-    - enzyme-llvmlite
+    - enzyme-llvmlite 0.0.48
   run_constrained:
-    # If TBB is present it must be at least version 2021
-    - tbb >=2021    # [not (armv6l or armv7l or aarch64 or linux32 or ppc64le)]
     # avoid confusion from openblas bugs
     - libopenblas !=0.3.6      # [x86_64]
     # 0.3.17 buggy on M1 silicon
@@ -67,15 +50,11 @@ requirements:
     # Exclude 0.3.20 too
     # https://github.com/numba/numba/issues/8096
     - libopenblas >=0.3.18, !=0.3.20     # [arm64]
-    # CUDA 10.2 or later is required for CUDA support
-    - cudatoolkit >=10.2
     # scipy 1.0 or later
     - scipy >=1.0
-    # CUDA Python 11.6 or later
-    - cuda-python >=11.6
 
 about:
   home: https://numba.pydata.org/
   license: BSD
   license_file: LICENSE
-  summary: a just-in-time Python function compiler based on LLVM
+  summary: A special version of Numba for the development of Numba-Enzyme
