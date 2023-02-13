@@ -19,11 +19,14 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
+    - {{ compiler('c') }}
     - cmake
     - ninja
   host:
     # From channel anaconda.org/ludgerpaehler
     - llvmlite-w-plugins
+    # From numba channel
+    - llvmdev 11.1.0
     # From conda-forge channel
     - lld 11.1.0
     - lit 11.1.0
