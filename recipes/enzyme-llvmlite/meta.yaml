@@ -1,7 +1,8 @@
 {% set name = "enzyme-llvmlite" %}
-{% set version = "0.0.34" %}
+{% set version = "0.0.48" %}
 {% set build_number = 0 %}
 {% set llvm_major_version = "11.1.0" %}
+{% set sha256 = "f5af62448dd2a8a316e59342ff445003581bc154f06b9b4d7a5a2c7259cf5769" %}
 
 package:
   name: {{ name|lower }}
@@ -9,7 +10,7 @@ package:
 
 source:
   url: https://github.com/EnzymeAD/Enzyme/archive/v{{ version }}.tar.gz
-  sha256: b4268562105f491d96f9984c5e612360255197317064b5ca44a261ebed9f4d05
+  sha256: {{ sha256 }}
 
 build:
   number: {{ build_number }}
@@ -21,14 +22,16 @@ requirements:
     - cmake
     - ninja
   host:
-    - llvmdev-addons-enabled
-    - lit
+    # From channel anaconda.org/ludgerpaehler
+    - llvmlite-w-plugins
+    # From conda-forge channel
+    - lld
+    - lit 
     - python 3.9
     - numpy 1.19
   run:
     - __osx >={{ MACOSX_DEPLOYMENT_TARGET|default("12.4") }}  # [osx and x86_64]
-  run_constrained:
-    - llvmdev-addons-enabled
+    - python >=3.8,<3.10
 
 about:
   home: https://enzyme.mit.edu/
